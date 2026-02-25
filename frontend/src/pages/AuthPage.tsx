@@ -1,11 +1,12 @@
 import { Auth } from "@supabase/auth-ui-react";
+import type { Session } from "@supabase/supabase-js";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 
 interface AuthPageProps {
-  session: any;
+  session: Session | null;
 }
 
 export default function AuthPage({ session }: AuthPageProps) {

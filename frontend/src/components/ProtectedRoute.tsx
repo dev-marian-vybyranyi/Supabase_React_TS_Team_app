@@ -1,7 +1,8 @@
+import type { Session } from "@supabase/supabase-js";
 import { Navigate } from "react-router-dom";
 
 interface ProtectedRouteProps {
-  session: any;
+  session: Session | null;
   children: React.ReactNode;
 }
 
