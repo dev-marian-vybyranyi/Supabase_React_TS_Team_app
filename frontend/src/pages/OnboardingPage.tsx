@@ -13,13 +13,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { OnboardingForm } from "../components/OnboardingForm";
+import { useAuthStore } from "../store/authStore";
 
-interface OnboardingPageProps {
-  onComplete: () => void;
-}
-
-export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
+export default function OnboardingPage() {
   const [mode, setMode] = useState<OnboardingMode>("create");
+  const setTeam = useAuthStore((state) => state.setTeam);
 
   const initialValues: OnboardingFormValues = {
     inputValue: "",
@@ -54,7 +52,7 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
           ? "Team created successfully!"
           : "Joined team successfully!",
       );
-      onComplete();
+      setTeam(data.team.id);
     } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message);

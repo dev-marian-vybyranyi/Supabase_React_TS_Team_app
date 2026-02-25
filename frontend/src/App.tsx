@@ -8,8 +8,7 @@ import OnboardingPage from "./pages/OnboardingPage";
 import { useAuthStore } from "./store/authStore";
 
 export default function App() {
-  const { session, hasTeam, loading, initialize, checkUserTeam } =
-    useAuthStore();
+  const { hasTeam, loading, initialize } = useAuthStore();
 
   useEffect(() => {
     const unsubscribe = initialize();
@@ -30,9 +29,7 @@ export default function App() {
               {hasTeam === null ? (
                 <Loader fullScreen text="Checking team data..." />
               ) : hasTeam === false ? (
-                <OnboardingPage
-                  onComplete={() => checkUserTeam(session!.user.id)}
-                />
+                <OnboardingPage />
               ) : (
                 <Dashboard />
               )}

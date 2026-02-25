@@ -10,6 +10,7 @@ interface AuthState {
 
   initialize: () => () => void;
   checkUserTeam: (userId: string) => Promise<void>;
+  setTeam: (teamId: string) => void;
   signOut: () => Promise<void>;
 }
 
@@ -68,6 +69,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     } finally {
       set({ loading: false });
     }
+  },
+
+  setTeam: (teamId: string) => {
+    set({ teamId, hasTeam: true, loading: false });
   },
 
   signOut: async () => {

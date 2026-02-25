@@ -46,3 +46,9 @@ ON products FOR UPDATE
 USING (
   team_id = (SELECT team_id FROM profiles WHERE id = auth.uid())
 );
+
+CREATE POLICY "Users can read own profile"
+ON profiles FOR SELECT
+USING (
+  auth.uid() = id
+);
