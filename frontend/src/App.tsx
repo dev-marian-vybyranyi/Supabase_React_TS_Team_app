@@ -51,13 +51,15 @@ export default function App() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_, session) => {
-      setSession(session);
-      if (session) {
-        checkUserTeam(session.user.id);
-      } else {
-        setHasTeam(null);
-        setLoading(false);
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+        setSession(session);
+        if (session) {
+          checkUserTeam(session.user.id);
+        } else {
+          setHasTeam(null);
+          setLoading(false);
+        }
       }
     });
 
