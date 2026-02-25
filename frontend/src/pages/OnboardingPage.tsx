@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { supabase } from "../supabaseClient";
 import type {
   OnboardingFormValues,
@@ -48,11 +49,18 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
       if (funcError) throw funcError;
       if (data?.error) throw new Error(data.error);
 
+      toast.success(
+        mode === "create"
+          ? "Team created successfully!"
+          : "Joined team successfully!",
+      );
       onComplete();
     } catch (error: unknown) {
       if (error instanceof Error) {
+        toast.error(error.message);
         setStatus(error.message);
       } else {
+        toast.error("An error occurred. Please check the data.");
         setStatus("An error occurred. Please check the data.");
       }
     } finally {

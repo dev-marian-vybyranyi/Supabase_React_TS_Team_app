@@ -1,12 +1,13 @@
-import type { Session } from "@supabase/supabase-js";
 import { Navigate } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
 
 interface ProtectedRouteProps {
-  session: Session | null;
   children: React.ReactNode;
 }
 
-const ProtectedRoute = ({ session, children }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+  const session = useAuthStore((state) => state.session);
+
   if (!session) {
     return <Navigate to="/auth" replace />;
   }

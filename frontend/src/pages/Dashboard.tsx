@@ -1,12 +1,14 @@
-import type { Session } from "@supabase/supabase-js";
-import { supabase } from "../supabaseClient";
+import toast from "react-hot-toast";
+import { useAuthStore } from "../store/authStore";
 
-interface DashboardProps {
-  session: Session | null;
-  teamId: string;
-}
+const Dashboard = () => {
+  const { session, teamId, signOut } = useAuthStore();
 
-const Dashboard = ({ session, teamId }: DashboardProps) => {
+  const handleLogout = async () => {
+    await signOut();
+    toast.success("You have been logged out successfully!");
+  };
+
   return (
     <div className="p-4">
       <h1>My Dashboard</h1>
@@ -18,7 +20,7 @@ const Dashboard = ({ session, teamId }: DashboardProps) => {
         </p>
       </div>
 
-      <button onClick={() => supabase.auth.signOut()}>Logout</button>
+      <button onClick={handleLogout}>Logout</button>
     </div>
   );
 };

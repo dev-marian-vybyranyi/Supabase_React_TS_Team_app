@@ -1,15 +1,12 @@
 import { Auth } from "@supabase/auth-ui-react";
-import type { Session } from "@supabase/supabase-js";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
 import { supabase } from "../supabaseClient";
 
-interface AuthPageProps {
-  session: Session | null;
-}
-
-export default function AuthPage({ session }: AuthPageProps) {
+export default function AuthPage() {
+  const session = useAuthStore((state) => state.session);
   const navigate = useNavigate();
 
   useEffect(() => {
