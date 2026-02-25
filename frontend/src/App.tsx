@@ -19,9 +19,9 @@ export default function App() {
         .from("profiles")
         .select("team_id")
         .eq("id", userId)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== "PGRST116") {
+      if (error) {
         console.error("Error checking user team:", error);
       }
 
