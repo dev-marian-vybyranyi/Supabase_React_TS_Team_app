@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import ProductsList from "@/components/ProductsList";
 import TeamInfo from "@/components/TeamInfo";
 import { useEffect } from "react";
 import { useAuthStore } from "../store/authStore";
@@ -19,6 +20,9 @@ const Dashboard = () => {
       <Header />
 
       <TeamInfo />
+
+      {/* Products */}
+      <ProductsList />
     </div>
   );
 };
