@@ -1,7 +1,7 @@
 import { LogOut } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuthStore } from "../store/authStore";
-import CreateProductDialog from "./CreateProductDialog";
+import CreateProductDialog from "./products/CreateProductDialog";
 import { Button } from "./ui/button";
 
 const Header = () => {

@@ -10,9 +10,9 @@ import type { FormikHelpers } from "formik";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useAuthStore } from "../store/authStore";
-import { useProductStore } from "../store/productStore";
-import type { CreateProductFormValues } from "../types/product.types";
+import { useAuthStore } from "../../store/authStore";
+import { useProductStore } from "../../store/productStore";
+import type { CreateProductFormValues } from "../../types/product.types";
 import { CreateProductForm } from "./CreateProductForm";
 
 export default function CreateProductDialog() {

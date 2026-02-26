@@ -1,5 +1,5 @@
 import Header from "@/components/Header";
-import ProductsList from "@/components/ProductsList";
+import ProductsList from "@/components/products/ProductsList";
 import TeamInfo from "@/components/TeamInfo";
 import { useEffect } from "react";
 import { useAuthStore } from "../store/authStore";

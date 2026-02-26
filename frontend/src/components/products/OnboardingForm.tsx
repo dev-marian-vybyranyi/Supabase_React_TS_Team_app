@@ -2,11 +2,11 @@ import { Field, Form, Formik, type FormikHelpers } from "formik";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { onboardingSchema } from "../schemas/onboarding.schema";
+import { onboardingSchema } from "../../schemas/onboarding.schema";
 import type {
   OnboardingFormValues,
   OnboardingMode,
-} from "../types/onboarding.types";
+} from "../../types/onboarding.types";
 
 interface OnboardingFormProps {
   mode: OnboardingMode;

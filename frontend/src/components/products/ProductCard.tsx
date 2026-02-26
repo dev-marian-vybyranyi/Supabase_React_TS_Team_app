@@ -1,5 +1,5 @@
 import { Package } from "lucide-react";
-import type { Tables } from "../database.types";
+import type { Tables } from "../../database.types";
 export type Product = Tables<"products">;
 import {
   Card,
@@ -7,7 +7,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "./ui/card";
+} from "../ui/card";
 import StatusBadge from "./StatusBadge";
 
 interface ProductCardProps {

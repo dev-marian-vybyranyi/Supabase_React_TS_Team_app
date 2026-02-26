@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { OnboardingForm } from "../components/OnboardingForm";
+import { OnboardingForm } from "../components/products/OnboardingForm";
 import { useAuthStore } from "../store/authStore";
 
 export default function OnboardingPage() {

@@ -1,6 +1,6 @@
 import Loader from "@/components/Loader";
-import NoProductsFound from "@/components/NoProductsFound";
-import ProductCard from "@/components/ProductCard";
+import NoProductsFound from "@/components/products/NoProductsFound";
+import ProductCard from "@/components/products/ProductCard";
 import { useProductStore } from "@/store/productStore";
 
 const ProductsList = () => {

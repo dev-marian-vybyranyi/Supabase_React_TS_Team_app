@@ -1,5 +1,5 @@
 import { Package } from "lucide-react";
-import { Card, CardContent } from "./ui/card";
+import { Card, CardContent } from "../ui/card";
 
 const NoProductsFound = () => {
   return (

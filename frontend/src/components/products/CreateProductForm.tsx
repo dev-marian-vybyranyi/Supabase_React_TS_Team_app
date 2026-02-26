@@ -11,8 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { createProductSchema } from "../schemas/product.schema";
-import type { CreateProductFormValues } from "../types/product.types";
+import { createProductSchema } from "../../schemas/product.schema";
+import type { CreateProductFormValues } from "../../types/product.types";
 
 interface CreateProductFormProps {
   imageFile: File | null;
