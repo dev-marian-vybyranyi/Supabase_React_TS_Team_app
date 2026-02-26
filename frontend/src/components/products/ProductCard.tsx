@@ -1,7 +1,14 @@
-import { Package, Pencil } from "lucide-react";
+import {
+  CircleCheck,
+  EllipsisVertical,
+  Package,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import type { Tables } from "../../database.types";
-export type Product = Tables<"products">;
+import { useProductStore } from "../../store/productStore";
+import { Button } from "../ui/button";
 import {
   Card,
   CardContent,
@@ -9,9 +16,15 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import ProductDialog from "./ProductDialog";
 import StatusBadge from "./StatusBadge";
+export type Product = Tables<"products">;
 
 interface ProductCardProps {
   product: Product;
@@ -19,6 +32,21 @@ interface ProductCardProps {
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const [editOpen, setEditOpen] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const { updateProductStatus } = useProductStore();
+
+  const handleStatusChange = async (newStatus: Product["status"]) => {
+    setIsUpdating(true);
+    try {
+      await updateProductStatus(product.id, newStatus);
+    } catch (err) {
+      console.error("Failed to update status:", err);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const hasActions = product.status !== "Deleted";
 
   return (
     <Card key={product.id} className="pt-0">
@@ -35,16 +63,44 @@ const ProductCard = ({ product }: ProductCardProps) => {
       )}
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="wrap-break-word h-8">{product.title}</CardTitle>
-          {product.status === "Draft" && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-foreground"
-              onClick={() => setEditOpen(true)}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
+          <CardTitle className="wrap-break-word">{product.title}</CardTitle>
+          {hasActions && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                  disabled={isUpdating}
+                >
+                  <EllipsisVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {product.status === "Draft" && (
+                  <DropdownMenuItem onClick={() => setEditOpen(true)}>
+                    <Pencil className="h-4 w-4 mr-2" />
+                    Edit
+                  </DropdownMenuItem>
+                )}
+                {product.status === "Draft" && (
+                  <DropdownMenuItem
+                    onClick={() => handleStatusChange("Active")}
+                  >
+                    <CircleCheck className="h-4 w-4 mr-2 text-green-600" />
+                    Activate
+                  </DropdownMenuItem>
+                )}
+                {product.status === "Active" && (
+                  <DropdownMenuItem
+                    onClick={() => handleStatusChange("Deleted")}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2 text-red-600" />
+                    Delete
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
 
