@@ -1,4 +1,4 @@
-import { Check, Copy } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Copy } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/authStore";
 import { useTeamStore } from "../store/teamStore";
@@ -10,6 +10,7 @@ const TeamInfo = () => {
   const { teamId } = useAuthStore();
   const { team, members, isLoading, fetchTeamData } = useTeamStore();
   const [copied, setCopied] = useState(false);
+  const [toggleMembers, setToggleMembers] = useState(false);
 
   useEffect(() => {
     if (teamId) {
@@ -69,30 +70,40 @@ const TeamInfo = () => {
           </div>
 
           <div className="pt-4 border-t">
-            <h3 className="font-semibold mb-3">
+            <h3
+              className="font-semibold mb-3 cursor-pointer flex items-center align-center"
+              onClick={() => setToggleMembers(!toggleMembers)}
+            >
+              {toggleMembers ? (
+                <ChevronUp className="w-4 h-4 mr-2" />
+              ) : (
+                <ChevronDown className="w-4 h-4 mr-2" />
+              )}
               Team members ({members.length})
             </h3>
-            <ul className="space-y-3">
-              {members.map((member) => (
-                <li key={member.id} className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium">
-                    {(member.display_name || member.email || "?")
-                      .charAt(0)
-                      .toUpperCase()}
-                  </div>
-                  <div>
-                    <div className="font-medium">
-                      {member.display_name || "No name"}
+            {toggleMembers && (
+              <ul className="space-y-3">
+                {members.map((member) => (
+                  <li key={member.id} className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium">
+                      {(member.display_name || member.email || "?")
+                        .charAt(0)
+                        .toUpperCase()}
                     </div>
-                    {member.email && (
-                      <div className="text-sm text-muted-foreground">
-                        {member.email}
+                    <div>
+                      <div className="font-medium">
+                        {member.display_name || "No name"}
                       </div>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
+                      {member.email && (
+                        <div className="text-sm text-muted-foreground">
+                          {member.email}
+                        </div>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       </CardContent>
