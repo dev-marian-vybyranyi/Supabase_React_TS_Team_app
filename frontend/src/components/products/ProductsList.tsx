@@ -1,7 +1,7 @@
-import Loader from "@/components/Loader";
 import NoProductsFound from "@/components/products/NoProductsFound";
 import Pagination from "@/components/products/Pagination";
 import ProductCard from "@/components/products/ProductCard";
+import ProductSkeleton from "@/components/products/ProductSkeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthStore } from "@/store/authStore";
 import { useProductStore } from "@/store/productStore";
@@ -52,7 +52,15 @@ const ProductsList = () => {
   const activeTab = statusFilter ?? "all";
 
   const renderGrid = () => {
-    if (isLoading) return <Loader text="Loading products..." />;
+    if (isLoading) {
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+          {Array.from({ length: pageSize }).map((_, i) => (
+            <ProductSkeleton key={i} />
+          ))}
+        </div>
+      );
+    }
     if (products.length === 0) return <NoProductsFound />;
 
     return (
