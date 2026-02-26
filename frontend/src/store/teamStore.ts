@@ -26,7 +26,7 @@ export const useTeamStore = create<TeamState>((set) => ({
         .from("teams")
         .select("*")
         .eq("id", teamId)
-        .single();
+        .maybeSingle();
 
       if (teamError) throw teamError;
 
