@@ -1,16 +1,15 @@
 import NoProductsFound from "@/components/products/NoProductsFound";
 import Pagination from "@/components/products/Pagination";
 import ProductCard from "@/components/products/ProductCard";
+import ProductFilters from "@/components/products/ProductFilters";
 import ProductSkeleton from "@/components/products/ProductSkeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthStore } from "@/store/authStore";
 import { useProductStore } from "@/store/productStore";
-import { useTeamStore } from "@/store/teamStore";
 import { useCallback, useEffect } from "react";
 
 const ProductsList = () => {
   const { teamId } = useAuthStore();
-  const { members } = useTeamStore();
   const {
     products,
     isLoading,
@@ -20,11 +19,10 @@ const ProductsList = () => {
     statusFilter,
     sortOrder,
     userFilter,
+    searchQuery,
     fetchProducts,
     setPage,
     setStatusFilter,
-    setSortOrder,
-    setUserFilter,
   } = useProductStore();
 
   const totalPages = Math.ceil(totalCount / pageSize);
@@ -35,7 +33,7 @@ const ProductsList = () => {
 
   useEffect(() => {
     refetch();
-  }, [page, statusFilter, sortOrder, userFilter, refetch]);
+  }, [page, statusFilter, sortOrder, userFilter, searchQuery, refetch]);
 
   const handleTabChange = (value: string) => {
     if (value === "all") {
@@ -92,45 +90,7 @@ const ProductsList = () => {
           <TabsTrigger value="Deleted">Deleted</TabsTrigger>
         </TabsList>
 
-        <div className="flex flex-wrap items-center gap-4 mb-6">
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-muted-foreground">
-              Sort by date:
-            </label>
-            <select
-              value={sortOrder}
-              onChange={(e) =>
-                setSortOrder(e.target.value as "newest" | "oldest")
-              }
-              className="rounded-md border border-input bg-background px-3 py-1.5 text-sm shadow-sm"
-            >
-              <option value="newest">Newest first</option>
-              <option value="oldest">Oldest first</option>
-            </select>
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-muted-foreground">
-              Filter by user:
-            </label>
-            <select
-              value={userFilter || ""}
-              onChange={(e) => setUserFilter(e.target.value || null)}
-              className="rounded-md border border-input bg-background px-3 py-1.5 text-sm shadow-sm"
-            >
-              <option value="">All users</option>
-              {members.map((member) => (
-                <option key={member.id} value={member.id}>
-                  {member.display_name || member.email || "Unknown user"}
-                </option>
-              ))}
-            </select>
-          </div>
-          {totalCount > 0 && (
-            <span className="text-sm text-muted-foreground ml-auto">
-              {totalCount} product{totalCount !== 1 ? "s" : ""} found
-            </span>
-          )}
-        </div>
+        <ProductFilters />
 
         <TabsContent value={activeTab} forceMount>
           {renderGrid()}

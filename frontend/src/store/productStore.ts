@@ -20,6 +20,7 @@ interface ProductState {
   statusFilter: ProductStatus | null;
   sortOrder: "newest" | "oldest";
   userFilter: string | null;
+  searchQuery: string;
 
   fetchProducts: (teamId: string) => Promise<void>;
   addProduct: (product: ProductWithCreator) => void;
@@ -27,6 +28,7 @@ interface ProductState {
   setStatusFilter: (status: ProductStatus | null) => void;
   setSortOrder: (order: "newest" | "oldest") => void;
   setUserFilter: (userId: string | null) => void;
+  setSearchQuery: (query: string) => void;
   createProduct: (
     data: {
       title: string;
@@ -62,9 +64,11 @@ export const useProductStore = create<ProductState>((set, get) => ({
   statusFilter: null,
   sortOrder: "newest" as const,
   userFilter: null,
+  searchQuery: "",
 
   fetchProducts: async (teamId) => {
-    const { page, pageSize, statusFilter, sortOrder, userFilter } = get();
+    const { page, pageSize, statusFilter, sortOrder, userFilter, searchQuery } =
+      get();
     set({ isLoading: true, error: null });
 
     const from = (page - 1) * pageSize;
@@ -83,6 +87,12 @@ export const useProductStore = create<ProductState>((set, get) => ({
 
     if (userFilter) {
       query = query.eq("created_by", userFilter);
+    }
+
+    if (searchQuery) {
+      query = query.or(
+        `title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`,
+      );
     }
 
     const { data, error, count } = await query;
@@ -105,6 +115,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
   setStatusFilter: (status) => set({ statusFilter: status, page: 1 }),
   setSortOrder: (order) => set({ sortOrder: order, page: 1 }),
   setUserFilter: (userId) => set({ userFilter: userId, page: 1 }),
+  setSearchQuery: (query) => set({ searchQuery: query, page: 1 }),
 
   createProduct: async ({ title, description, teamId, userId }, imageFile) => {
     let imageUrl: string | null = null;
