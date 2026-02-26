@@ -1,26 +1,24 @@
-import toast from "react-hot-toast";
+import Header from "@/components/Header";
+import TeamInfo from "@/components/TeamInfo";
+import { useEffect } from "react";
 import { useAuthStore } from "../store/authStore";
+import { useProductStore } from "../store/productStore";
 
 const Dashboard = () => {
-  const { session, teamId, signOut } = useAuthStore();
+  const { teamId } = useAuthStore();
+  const { fetchProducts } = useProductStore();
 
-  const handleLogout = async () => {
-    await signOut();
-    toast.success("You have been logged out successfully!");
-  };
+  useEffect(() => {
+    if (teamId) {
+      fetchProducts(teamId);
+    }
+  }, [teamId, fetchProducts]);
 
   return (
-    <div className="p-4">
-      <h1>My Dashboard</h1>
-      <p>You are logged in as: {session?.user?.email}</p>
+    <div className="p-8 max-w-6xl mx-auto">
+      <Header />
 
-      <div className="bg-gray-100 p-4 rounded-lg my-4">
-        <p>
-          <strong>Your Team ID:</strong> {teamId}
-        </p>
-      </div>
-
-      <button onClick={handleLogout}>Logout</button>
+      <TeamInfo />
     </div>
   );
 };
