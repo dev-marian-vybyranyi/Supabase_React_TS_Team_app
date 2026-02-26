@@ -63,7 +63,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       )}
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="wrap-break-word">{product.title}</CardTitle>
+          <CardTitle className="wrap-break-word text-xl">{product.title}</CardTitle>
           {hasActions && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -105,7 +105,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </div>
 
         {product.description && (
-          <CardDescription className="wrap-break-word line-clamp-3">
+          <CardDescription className="wrap-break-word line-clamp-3 text-md">
             {product.description}
           </CardDescription>
         )}
