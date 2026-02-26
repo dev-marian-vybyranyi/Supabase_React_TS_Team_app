@@ -20,6 +20,12 @@ interface ProductState {
     },
     imageFile?: File | null,
   ) => Promise<void>;
+  updateProduct: (
+    productId: string,
+    data: { title: string; description: string },
+    imageFile?: File | null,
+    teamId?: string,
+  ) => Promise<void>;
   updateProductStatus: (
     productId: string,
     newStatus: Product["status"],
@@ -84,6 +90,46 @@ export const useProductStore = create<ProductState>((set, get) => ({
     if (dbError) throw dbError;
 
     get().addProduct(newProduct);
+  },
+
+  updateProduct: async (productId, data, imageFile, teamId) => {
+    let imageUrl: string | undefined;
+
+    if (imageFile && teamId) {
+      const fileExt = imageFile.name.split(".").pop();
+      const filePath = `${teamId}/${Math.random()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("product-images")
+        .upload(filePath, imageFile);
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = supabase.storage
+        .from("product-images")
+        .getPublicUrl(filePath);
+
+      imageUrl = publicUrlData.publicUrl;
+    }
+
+    const updateData: Record<string, unknown> = {
+      title: data.title,
+      description: data.description,
+    };
+    if (imageUrl) updateData.image_url = imageUrl;
+
+    const { data: updated, error } = await supabase
+      .from("products")
+      .update(updateData)
+      .eq("id", productId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    set((state) => ({
+      products: state.products.map((p) => (p.id === productId ? updated : p)),
+    }));
   },
 
   updateProductStatus: async (productId, newStatus) => {

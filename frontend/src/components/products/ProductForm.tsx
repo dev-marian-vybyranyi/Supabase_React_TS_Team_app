@@ -11,28 +11,34 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { createProductSchema } from "../../schemas/product.schema";
-import type { CreateProductFormValues } from "../../types/product.types";
+import { productSchema } from "../../schemas/product.schema";
+import type { ProductFormValues } from "../../types/product.types";
 
-interface CreateProductFormProps {
+interface ProductFormProps {
+  mode: "create" | "edit";
+  defaultValues?: ProductFormValues;
+  currentImageUrl?: string | null;
   imageFile: File | null;
   onImageChange: (file: File | null) => void;
   onSubmit: (
-    values: CreateProductFormValues,
-    helpers: FormikHelpers<CreateProductFormValues>,
+    values: ProductFormValues,
+    helpers: FormikHelpers<ProductFormValues>,
   ) => Promise<void>;
 }
 
-const initialValues: CreateProductFormValues = {
+const emptyValues: ProductFormValues = {
   title: "",
   description: "",
 };
 
-export function CreateProductForm({
+export function ProductForm({
+  mode,
+  defaultValues,
+  currentImageUrl,
   imageFile,
   onImageChange,
   onSubmit,
-}: CreateProductFormProps) {
+}: ProductFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleRemoveImage = () => {
@@ -42,10 +48,13 @@ export function CreateProductForm({
     }
   };
 
+  const initialValues: ProductFormValues = defaultValues ?? emptyValues;
+
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={createProductSchema}
+      enableReinitialize
+      validationSchema={productSchema}
       onSubmit={onSubmit}
     >
       {({ isSubmitting, status, errors, touched }) => (
@@ -107,6 +116,15 @@ export function CreateProductForm({
               onChange={(e) => onImageChange(e.target.files?.[0] || null)}
               className="focus-visible:ring-green-600"
             />
+            {!imageFile && currentImageUrl && (
+              <div className="mt-2">
+                <img
+                  src={currentImageUrl}
+                  alt="Current"
+                  className="h-20 w-20 object-cover rounded-md"
+                />
+              </div>
+            )}
             {imageFile && (
               <div className="flex items-center gap-2 mt-2 bg-muted/50 p-2 rounded-md">
                 <p className="text-xs text-muted-foreground truncate flex-1">
@@ -135,7 +153,13 @@ export function CreateProductForm({
             disabled={isSubmitting}
             className="w-full bg-green-600 hover:bg-green-700 text-white"
           >
-            {isSubmitting ? "Saving..." : "Save"}
+            {isSubmitting
+              ? mode === "edit"
+                ? "Updating..."
+                : "Saving..."
+              : mode === "edit"
+                ? "Update"
+                : "Save"}
           </Button>
         </Form>
       )}

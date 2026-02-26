@@ -1,4 +1,5 @@
-import { Package } from "lucide-react";
+import { Package, Pencil } from "lucide-react";
+import { useState } from "react";
 import type { Tables } from "../../database.types";
 export type Product = Tables<"products">;
 import {
@@ -8,6 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import { Button } from "../ui/button";
+import ProductDialog from "./ProductDialog";
 import StatusBadge from "./StatusBadge";
 
 interface ProductCardProps {
@@ -15,6 +18,8 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
+  const [editOpen, setEditOpen] = useState(false);
+
   return (
     <Card key={product.id} className="pt-0">
       {product.image_url ? (
@@ -29,7 +34,17 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </div>
       )}
       <CardHeader className="pb-2">
-        <CardTitle className="wrap-break-word">{product.title}</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="wrap-break-word">{product.title}</CardTitle>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+            onClick={() => setEditOpen(true)}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </div>
 
         {product.description && (
           <CardDescription className="wrap-break-word line-clamp-3">
@@ -40,6 +55,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
       <CardContent className="mt-auto">
         <StatusBadge status={product.status} />
       </CardContent>
+
+      <ProductDialog
+        mode="edit"
+        product={product}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+      />
     </Card>
   );
 };

@@ -1,7 +1,7 @@
 import { LogOut } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuthStore } from "../store/authStore";
-import CreateProductDialog from "./products/CreateProductDialog";
+import ProductDialog from "./products/ProductDialog";
 import { Button } from "./ui/button";
 
 const Header = () => {
@@ -19,7 +19,7 @@ const Header = () => {
         <p className="text-muted-foreground">{session?.user?.email}</p>
       </div>
       <div className="flex gap-3">
-        <CreateProductDialog />
+        <ProductDialog mode="create" />
         <Button variant="outline" onClick={handleLogout}>
           <LogOut className="h-4 w-4 mr-2" />
           Logout
