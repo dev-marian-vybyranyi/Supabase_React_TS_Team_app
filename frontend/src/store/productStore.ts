@@ -25,6 +25,8 @@ interface ProductState {
     data: { title: string; description: string },
     imageFile?: File | null,
     teamId?: string,
+    removeImage?: boolean,
+    oldImageUrl?: string | null,
   ) => Promise<void>;
   updateProductStatus: (
     productId: string,
@@ -92,8 +94,29 @@ export const useProductStore = create<ProductState>((set, get) => ({
     get().addProduct(newProduct);
   },
 
-  updateProduct: async (productId, data, imageFile, teamId) => {
-    let imageUrl: string | undefined;
+  updateProduct: async (
+    productId,
+    data,
+    imageFile,
+    teamId,
+    removeImage,
+    oldImageUrl,
+  ) => {
+    const getStoragePath = (url: string) => {
+      const marker = "/object/public/product-images/";
+      const idx = url.indexOf(marker);
+      if (idx === -1) return null;
+      return url.substring(idx + marker.length);
+    };
+
+    if (oldImageUrl && (imageFile || removeImage)) {
+      const oldPath = getStoragePath(oldImageUrl);
+      if (oldPath) {
+        await supabase.storage.from("product-images").remove([oldPath]);
+      }
+    }
+
+    let imageUrl: string | null | undefined;
 
     if (imageFile && teamId) {
       const fileExt = imageFile.name.split(".").pop();
@@ -110,13 +133,15 @@ export const useProductStore = create<ProductState>((set, get) => ({
         .getPublicUrl(filePath);
 
       imageUrl = publicUrlData.publicUrl;
+    } else if (removeImage) {
+      imageUrl = null;
     }
 
     const updateData: Record<string, unknown> = {
       title: data.title,
       description: data.description,
     };
-    if (imageUrl) updateData.image_url = imageUrl;
+    if (imageUrl !== undefined) updateData.image_url = imageUrl;
 
     const { data: updated, error } = await supabase
       .from("products")

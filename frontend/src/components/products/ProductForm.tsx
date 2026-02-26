@@ -20,6 +20,7 @@ interface ProductFormProps {
   currentImageUrl?: string | null;
   imageFile: File | null;
   onImageChange: (file: File | null) => void;
+  onRemoveCurrentImage?: () => void;
   onSubmit: (
     values: ProductFormValues,
     helpers: FormikHelpers<ProductFormValues>,
@@ -37,6 +38,7 @@ export function ProductForm({
   currentImageUrl,
   imageFile,
   onImageChange,
+  onRemoveCurrentImage,
   onSubmit,
 }: ProductFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -117,12 +119,27 @@ export function ProductForm({
               className="focus-visible:ring-green-600"
             />
             {!imageFile && currentImageUrl && (
-              <div className="mt-2">
+              <div className="flex items-center gap-2 mt-2 bg-muted/50 p-2 rounded-md">
                 <img
                   src={currentImageUrl}
                   alt="Current"
                   className="h-20 w-20 object-cover rounded-md"
                 />
+                <p className="text-xs text-muted-foreground truncate flex-1">
+                  Current image
+                </p>
+                {onRemoveCurrentImage && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-red-500 hover:text-red-700 hover:bg-red-100 rounded-full"
+                    onClick={onRemoveCurrentImage}
+                    title="Remove current image"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             )}
             {imageFile && (

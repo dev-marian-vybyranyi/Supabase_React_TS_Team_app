@@ -36,6 +36,7 @@ export default function ProductDialog({
 
   const [internalOpen, setInternalOpen] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [removeCurrentImage, setRemoveCurrentImage] = useState(false);
 
   const isControlled = controlledOpen !== undefined;
   const isOpen = isControlled ? controlledOpen : internalOpen;
@@ -65,6 +66,8 @@ export default function ProductDialog({
           },
           imageFile,
           teamId,
+          removeCurrentImage,
+          product.image_url,
         );
         toast.success("Product successfully updated!");
       } else {
@@ -82,6 +85,7 @@ export default function ProductDialog({
       }
 
       setImageFile(null);
+      setRemoveCurrentImage(false);
       setIsOpen(false);
     } catch (error: unknown) {
       const message =
@@ -99,6 +103,8 @@ export default function ProductDialog({
     mode === "edit" && product
       ? { title: product.title, description: product.description ?? "" }
       : undefined;
+
+  const displayedImageUrl = removeCurrentImage ? null : product?.image_url;
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -127,9 +133,10 @@ export default function ProductDialog({
           <ProductForm
             mode={mode}
             defaultValues={defaultValues}
-            currentImageUrl={product?.image_url}
+            currentImageUrl={displayedImageUrl}
             imageFile={imageFile}
             onImageChange={setImageFile}
+            onRemoveCurrentImage={() => setRemoveCurrentImage(true)}
             onSubmit={handleSubmit}
           />
         </div>
