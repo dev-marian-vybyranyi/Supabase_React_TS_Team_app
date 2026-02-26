@@ -3,14 +3,27 @@ import type { Database } from "../database.types";
 import { supabase } from "../supabaseClient";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
+type ProductStatus = Database["public"]["Enums"]["product_status"];
+
+const DEFAULT_PAGE_SIZE = 6;
 
 interface ProductState {
   products: Product[];
   isLoading: boolean;
   error: string | null;
 
+  page: number;
+  pageSize: number;
+  totalCount: number;
+
+  statusFilter: ProductStatus | null;
+  sortOrder: "newest" | "oldest";
+
   fetchProducts: (teamId: string) => Promise<void>;
   addProduct: (product: Product) => void;
+  setPage: (page: number) => void;
+  setStatusFilter: (status: ProductStatus | null) => void;
+  setSortOrder: (order: "newest" | "oldest") => void;
   createProduct: (
     data: {
       title: string;
@@ -39,23 +52,50 @@ export const useProductStore = create<ProductState>((set, get) => ({
   isLoading: false,
   error: null,
 
+  page: 1,
+  pageSize: DEFAULT_PAGE_SIZE,
+  totalCount: 0,
+
+  statusFilter: null,
+  sortOrder: "newest" as const,
+
   fetchProducts: async (teamId) => {
+    const { page, pageSize, statusFilter, sortOrder } = get();
     set({ isLoading: true, error: null });
-    const { data, error } = await supabase
+
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
+    let query = supabase
       .from("products")
-      .select("*")
+      .select("*", { count: "exact" })
       .eq("team_id", teamId)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: sortOrder === "oldest" })
+      .range(from, to);
+
+    if (statusFilter) {
+      query = query.eq("status", statusFilter);
+    }
+
+    const { data, error, count } = await query;
 
     if (error) {
       set({ error: error.message, isLoading: false });
       return;
     }
-    set({ products: data || [], isLoading: false });
+    set({
+      products: data || [],
+      totalCount: count ?? 0,
+      isLoading: false,
+    });
   },
 
   addProduct: (product) =>
     set((state) => ({ products: [product, ...state.products] })),
+
+  setPage: (page) => set({ page }),
+  setStatusFilter: (status) => set({ statusFilter: status, page: 1 }),
+  setSortOrder: (order) => set({ sortOrder: order, page: 1 }),
 
   createProduct: async ({ title, description, teamId, userId }, imageFile) => {
     let imageUrl: string | null = null;
