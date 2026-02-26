@@ -19,12 +19,14 @@ interface ProductState {
 
   statusFilter: ProductStatus | null;
   sortOrder: "newest" | "oldest";
+  userFilter: string | null;
 
   fetchProducts: (teamId: string) => Promise<void>;
   addProduct: (product: ProductWithCreator) => void;
   setPage: (page: number) => void;
   setStatusFilter: (status: ProductStatus | null) => void;
   setSortOrder: (order: "newest" | "oldest") => void;
+  setUserFilter: (userId: string | null) => void;
   createProduct: (
     data: {
       title: string;
@@ -59,9 +61,10 @@ export const useProductStore = create<ProductState>((set, get) => ({
 
   statusFilter: null,
   sortOrder: "newest" as const,
+  userFilter: null,
 
   fetchProducts: async (teamId) => {
-    const { page, pageSize, statusFilter, sortOrder } = get();
+    const { page, pageSize, statusFilter, sortOrder, userFilter } = get();
     set({ isLoading: true, error: null });
 
     const from = (page - 1) * pageSize;
@@ -76,6 +79,10 @@ export const useProductStore = create<ProductState>((set, get) => ({
 
     if (statusFilter) {
       query = query.eq("status", statusFilter);
+    }
+
+    if (userFilter) {
+      query = query.eq("created_by", userFilter);
     }
 
     const { data, error, count } = await query;
@@ -97,6 +104,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
   setPage: (page) => set({ page }),
   setStatusFilter: (status) => set({ statusFilter: status, page: 1 }),
   setSortOrder: (order) => set({ sortOrder: order, page: 1 }),
+  setUserFilter: (userId) => set({ userFilter: userId, page: 1 }),
 
   createProduct: async ({ title, description, teamId, userId }, imageFile) => {
     let imageUrl: string | null = null;
