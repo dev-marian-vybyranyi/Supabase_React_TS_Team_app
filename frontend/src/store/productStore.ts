@@ -49,7 +49,6 @@ export const useProductStore = create<ProductState>((set) => ({
   createProduct: async ({ title, description, teamId, userId }, imageFile) => {
     let imageUrl: string | null = null;
 
-    // 1. Upload image to Supabase Storage
     if (imageFile) {
       const fileExt = imageFile.name.split(".").pop();
       const fileName = `${Math.random()}.${fileExt}`;
@@ -68,7 +67,6 @@ export const useProductStore = create<ProductState>((set) => ({
       imageUrl = publicUrlData.publicUrl;
     }
 
-    // 2. Insert product into DB
     const { data: newProduct, error: dbError } = await supabase
       .from("products")
       .insert({
@@ -83,7 +81,6 @@ export const useProductStore = create<ProductState>((set) => ({
 
     if (dbError) throw dbError;
 
-    // 3. Update store
     useProductStore.getState().addProduct(newProduct);
   },
 }));
