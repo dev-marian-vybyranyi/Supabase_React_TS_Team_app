@@ -35,15 +35,17 @@ const ProductCard = ({ product }: ProductCardProps) => {
       )}
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="wrap-break-word">{product.title}</CardTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-muted-foreground hover:text-foreground"
-            onClick={() => setEditOpen(true)}
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
+          <CardTitle className="wrap-break-word h-8">{product.title}</CardTitle>
+          {product.status === "Draft" && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              onClick={() => setEditOpen(true)}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+          )}
         </div>
 
         {product.description && (
@@ -56,12 +58,14 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <StatusBadge status={product.status} />
       </CardContent>
 
-      <ProductDialog
-        mode="edit"
-        product={product}
-        open={editOpen}
-        onOpenChange={setEditOpen}
-      />
+      {product.status === "Draft" && (
+        <ProductDialog
+          mode="edit"
+          product={product}
+          open={editOpen}
+          onOpenChange={setEditOpen}
+        />
+      )}
     </Card>
   );
 };
