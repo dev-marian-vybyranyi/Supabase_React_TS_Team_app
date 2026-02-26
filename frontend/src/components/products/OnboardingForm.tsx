@@ -32,6 +32,30 @@ export function OnboardingForm({
       {({ isSubmitting, status, errors, touched }) => (
         <Form className="space-y-4">
           <div className="space-y-2">
+            <Label htmlFor="displayName">Your name:</Label>
+            <Field name="displayName">
+              {({ field }: any) => (
+                <Input
+                  {...field}
+                  id="displayName"
+                  type="text"
+                  placeholder="First and last name"
+                  className={
+                    errors.displayName && touched.displayName
+                      ? "border-red-500 focus-visible:ring-red-500"
+                      : "focus-visible:ring-green-600"
+                  }
+                />
+              )}
+            </Field>
+            {errors.displayName && touched.displayName && (
+              <p className="text-sm font-medium text-red-500">
+                {errors.displayName as string}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="inputValue">
               {mode === "create" ? "Team name:" : "Invite code:"}
             </Label>

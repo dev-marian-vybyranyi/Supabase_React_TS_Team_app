@@ -1,14 +1,15 @@
 import { create } from "zustand";
-import type { Database } from "../database.types";
 import { supabase } from "../supabaseClient";
-
-type Product = Database["public"]["Tables"]["products"]["Row"];
-type ProductStatus = Database["public"]["Enums"]["product_status"];
+import type {
+  Product,
+  ProductStatus,
+  ProductWithCreator,
+} from "../types/product.types";
 
 const DEFAULT_PAGE_SIZE = 6;
 
 interface ProductState {
-  products: Product[];
+  products: ProductWithCreator[];
   isLoading: boolean;
   error: string | null;
 
@@ -20,7 +21,7 @@ interface ProductState {
   sortOrder: "newest" | "oldest";
 
   fetchProducts: (teamId: string) => Promise<void>;
-  addProduct: (product: Product) => void;
+  addProduct: (product: ProductWithCreator) => void;
   setPage: (page: number) => void;
   setStatusFilter: (status: ProductStatus | null) => void;
   setSortOrder: (order: "newest" | "oldest") => void;
@@ -68,7 +69,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
 
     let query = supabase
       .from("products")
-      .select("*", { count: "exact" })
+      .select("*, profiles!created_by(display_name)", { count: "exact" })
       .eq("team_id", teamId)
       .order("created_at", { ascending: sortOrder === "oldest" })
       .range(from, to);
@@ -126,7 +127,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
         team_id: teamId,
         created_by: userId,
       })
-      .select()
+      .select("*, profiles!created_by(display_name)")
       .single();
 
     if (dbError) throw dbError;
@@ -187,7 +188,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
       .from("products")
       .update(updateData)
       .eq("id", productId)
-      .select()
+      .select("*, profiles!created_by(display_name)")
       .single();
 
     if (error) throw error;

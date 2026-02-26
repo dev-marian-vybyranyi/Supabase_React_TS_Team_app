@@ -6,8 +6,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { useState } from "react";
-import type { Tables } from "../../database.types";
 import { useProductStore } from "../../store/productStore";
+import type { ProductWithCreator } from "../../types/product.types";
 import { Button } from "../ui/button";
 import {
   Card,
@@ -24,10 +24,10 @@ import {
 } from "../ui/dropdown-menu";
 import ProductDialog from "./ProductDialog";
 import StatusBadge from "./StatusBadge";
-export type Product = Tables<"products">;
+export type Product = ProductWithCreator;
 
 interface ProductCardProps {
-  product: Product;
+  product: ProductWithCreator;
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
@@ -110,8 +110,24 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </CardDescription>
         )}
       </CardHeader>
-      <CardContent className="mt-auto">
+      <CardContent className="mt-auto flex items-center justify-between">
         <StatusBadge status={product.status} />
+        <div className="flex flex-col items-end gap-0.5">
+          {product.profiles?.display_name && (
+            <span className="text-xs font-medium text-foreground">
+              {product.profiles.display_name}
+            </span>
+          )}
+          {product.created_at && (
+            <span className="text-[10px] text-muted-foreground">
+              {new Date(product.created_at).toLocaleDateString("uk-UA", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              })}
+            </span>
+          )}
+        </div>
       </CardContent>
 
       {product.status === "Draft" && (

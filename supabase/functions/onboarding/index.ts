@@ -39,7 +39,11 @@ Deno.serve(async (req) => {
 
       const { error: profileError } = await supabase
         .from("profiles")
-        .upsert({ id: user.id, team_id: team.id });
+        .upsert({
+          id: user.id,
+          team_id: team.id,
+          display_name: payload.display_name,
+        });
 
       if (profileError) throw profileError;
 
@@ -60,7 +64,11 @@ Deno.serve(async (req) => {
 
       const { error: profileError } = await supabase
         .from("profiles")
-        .upsert({ id: user.id, team_id: team.id });
+        .upsert({
+          id: user.id,
+          team_id: team.id,
+          display_name: payload.display_name,
+        });
 
       if (profileError) throw profileError;
 

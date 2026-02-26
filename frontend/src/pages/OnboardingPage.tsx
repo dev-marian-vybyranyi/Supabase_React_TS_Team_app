@@ -20,6 +20,7 @@ export default function OnboardingPage() {
   const setTeam = useAuthStore((state) => state.setTeam);
 
   const initialValues: OnboardingFormValues = {
+    displayName: "",
     inputValue: "",
   };
 
@@ -34,8 +35,11 @@ export default function OnboardingPage() {
     try {
       const payload =
         mode === "create"
-          ? { name: values.inputValue }
-          : { invite_code: values.inputValue };
+          ? { name: values.inputValue, display_name: values.displayName }
+          : {
+              invite_code: values.inputValue,
+              display_name: values.displayName,
+            };
 
       const { data, error: funcError } = await supabase.functions.invoke(
         "onboarding",
