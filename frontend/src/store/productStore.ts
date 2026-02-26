@@ -1,12 +1,13 @@
 import { create } from "zustand";
-import { supabase } from "../supabaseClient";
 import type { Database } from "../database.types";
+import { supabase } from "../supabaseClient";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
 
 interface ProductState {
   products: Product[];
   isLoading: boolean;
+  error: string | null;
 
   fetchProducts: (teamId: string) => Promise<void>;
   addProduct: (product: Product) => void;
@@ -19,28 +20,30 @@ interface ProductState {
     },
     imageFile?: File | null,
   ) => Promise<void>;
+  updateProductStatus: (
+    productId: string,
+    newStatus: Product["status"],
+  ) => Promise<void>;
 }
 
-export const useProductStore = create<ProductState>((set) => ({
+export const useProductStore = create<ProductState>((set, get) => ({
   products: [],
   isLoading: false,
+  error: null,
 
-  fetchProducts: async (teamId: string) => {
-    set({ isLoading: true });
-    try {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("team_id", teamId)
-        .order("created_at", { ascending: false });
+  fetchProducts: async (teamId) => {
+    set({ isLoading: true, error: null });
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("team_id", teamId)
+      .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      set({ products: data || [] });
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    } finally {
-      set({ isLoading: false });
+    if (error) {
+      set({ error: error.message, isLoading: false });
+      return;
     }
+    set({ products: data || [], isLoading: false });
   },
 
   addProduct: (product) =>
@@ -51,8 +54,7 @@ export const useProductStore = create<ProductState>((set) => ({
 
     if (imageFile) {
       const fileExt = imageFile.name.split(".").pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${teamId}/${fileName}`;
+      const filePath = `${teamId}/${Math.random()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from("product-images")
@@ -81,6 +83,21 @@ export const useProductStore = create<ProductState>((set) => ({
 
     if (dbError) throw dbError;
 
-    useProductStore.getState().addProduct(newProduct);
+    get().addProduct(newProduct);
+  },
+
+  updateProductStatus: async (productId, newStatus) => {
+    const { error } = await supabase
+      .from("products")
+      .update({ status: newStatus })
+      .eq("id", productId);
+
+    if (error) throw error;
+
+    set((state) => ({
+      products: state.products.map((p) =>
+        p.id === productId ? { ...p, status: newStatus } : p,
+      ),
+    }));
   },
 }));

@@ -14,7 +14,7 @@ interface AuthState {
   signOut: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   session: null,
   hasTeam: null,
   teamId: "",
@@ -22,9 +22,9 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   initialize: () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      set({ session });
       if (session) {
-        useAuthStore.getState().checkUserTeam(session.user.id);
+        set({ session });
+        get().checkUserTeam(session.user.id);
       } else {
         set({ loading: false });
       }
@@ -32,14 +32,13 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
-        set({ session });
-        if (session) {
-          useAuthStore.getState().checkUserTeam(session.user.id);
-        } else {
-          set({ hasTeam: null, teamId: "", loading: false });
-        }
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      set({ session });
+
+      if (event === "SIGNED_IN" && session) {
+        await get().checkUserTeam(session.user.id);
+      } else if (event === "SIGNED_OUT") {
+        set({ hasTeam: null, teamId: "", loading: false });
       }
     });
 
@@ -54,17 +53,15 @@ export const useAuthStore = create<AuthState>((set) => ({
         .eq("id", userId)
         .maybeSingle();
 
-      if (error) {
-        console.error("Error checking user team:", error);
-      }
+      if (error) throw error;
 
-      if (data && data.team_id) {
+      if (data?.team_id) {
         set({ teamId: data.team_id, hasTeam: true });
       } else {
-        set({ hasTeam: false });
+        set({ hasTeam: false, teamId: "" });
       }
     } catch (error) {
-      console.error(error);
+      console.error("AuthStore (checkUserTeam):", error);
       set({ hasTeam: false });
     } finally {
       set({ loading: false });
@@ -76,6 +73,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   signOut: async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Sign out error:", error);
+    }
   },
 }));
