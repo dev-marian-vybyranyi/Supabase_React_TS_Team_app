@@ -2,21 +2,39 @@ import { Check, ChevronDown, ChevronUp, Copy } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/authStore";
 import { useTeamStore } from "../store/teamStore";
+import { usePresenceStore } from "../store/presenceStore";
 import Loader from "./Loader";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 
 const TeamInfo = () => {
-  const { teamId } = useAuthStore();
+  const { teamId, session } = useAuthStore();
   const { team, members, isLoading, fetchTeamData } = useTeamStore();
+  const { onlineUserIds, initializePresence, cleanupPresence } =
+    usePresenceStore();
+
   const [copied, setCopied] = useState(false);
   const [toggleMembers, setToggleMembers] = useState(false);
 
   useEffect(() => {
     if (teamId) {
       fetchTeamData(teamId);
+
+      if (session?.user?.id) {
+        initializePresence(teamId, session.user.id);
+      }
     }
-  }, [teamId, fetchTeamData]);
+
+    return () => {
+      cleanupPresence();
+    };
+  }, [
+    teamId,
+    session?.user?.id,
+    fetchTeamData,
+    initializePresence,
+    cleanupPresence,
+  ]);
 
   const handleCopyCode = async () => {
     if (team?.invite_code) {
@@ -81,27 +99,44 @@ const TeamInfo = () => {
               )}
               Team members ({members.length})
             </h3>
+
             {toggleMembers && (
               <ul className="space-y-3">
-                {members.map((member) => (
-                  <li key={member.id} className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium">
-                      {(member.display_name || member.email || "?")
-                        .charAt(0)
-                        .toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="font-medium">
-                        {member.display_name || "No name"}
-                      </div>
-                      {member.email && (
-                        <div className="text-sm text-muted-foreground">
-                          {member.email}
+                {members.map((member) => {
+                  const isOnline = onlineUserIds.includes(member.id);
+
+                  return (
+                    <li
+                      key={member.id}
+                      className="flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium">
+                            {(member.display_name || member.email || "?")
+                              .charAt(0)
+                              .toUpperCase()}
+                          </div>
+                          <span
+                            className={`absolute bottom-0 right-0 block h-3 w-3 rounded-full ring-2 ring-white ${
+                              isOnline ? "bg-green-500" : "bg-gray-300"
+                            }`}
+                          />
                         </div>
-                      )}
-                    </div>
-                  </li>
-                ))}
+                        <div>
+                          <div className="font-medium">
+                            {member.display_name || "No name"}
+                          </div>
+                          {member.email && (
+                            <div className="text-sm text-muted-foreground">
+                              {member.email}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>
