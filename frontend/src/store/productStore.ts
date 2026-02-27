@@ -223,9 +223,14 @@ export const useProductStore = create<ProductState>((set, get) => ({
   },
 
   updateProductStatus: async (productId, newStatus) => {
+    const now = new Date().toISOString();
+
     const { error } = await supabase
       .from("products")
-      .update({ status: newStatus })
+      .update({
+        status: newStatus,
+        updated_at: now,
+      })
       .eq("id", productId);
 
     if (error) throw error;
@@ -238,7 +243,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
       }
       return {
         products: state.products.map((p) =>
-          p.id === productId ? { ...p, status: newStatus } : p,
+          p.id === productId ? { ...p, status: newStatus, updated_at: now } : p,
         ),
       };
     });
