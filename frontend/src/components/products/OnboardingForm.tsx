@@ -1,7 +1,13 @@
-import { Field, Form, Formik, type FormikHelpers } from "formik";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Field,
+  Form,
+  Formik,
+  type FieldProps,
+  type FormikHelpers,
+} from "formik";
 import { onboardingSchema } from "../../schemas/onboarding.schema";
 import type {
   OnboardingFormValues,
@@ -34,7 +40,7 @@ export function OnboardingForm({
           <div className="space-y-2">
             <Label htmlFor="displayName">Your name:</Label>
             <Field name="displayName">
-              {({ field }: any) => (
+              {({ field }: FieldProps) => (
                 <Input
                   {...field}
                   id="displayName"
@@ -60,7 +66,7 @@ export function OnboardingForm({
               {mode === "create" ? "Team name:" : "Invite code:"}
             </Label>
             <Field name="inputValue">
-              {({ field }: any) => (
+              {({ field }: FieldProps) => (
                 <Input
                   {...field}
                   id="inputValue"
