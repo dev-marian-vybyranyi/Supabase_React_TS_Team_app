@@ -22,24 +22,21 @@ export const useTeamStore = create<TeamState>((set) => ({
     set({ isLoading: true, error: null });
 
     try {
-      const { data: teamData, error: teamError } = await supabase
-        .from("teams")
-        .select("*")
-        .eq("id", teamId)
-        .maybeSingle();
+      const { data, error: invokeError } = await supabase.functions.invoke(
+        "team-fetch",
+        {
+          body: {
+            teamId,
+          },
+        },
+      );
 
-      if (teamError) throw teamError;
-
-      const { data: membersData, error: membersError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("team_id", teamId);
-
-      if (membersError) throw membersError;
+      if (invokeError) throw invokeError;
+      if (!data.success) throw new Error(data.error);
 
       set({
-        team: teamData,
-        members: membersData || [],
+        team: data.team,
+        members: data.members || [],
         isLoading: false,
       });
     } catch (error: unknown) {
