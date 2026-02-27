@@ -23,7 +23,6 @@ interface ProductState {
   searchQuery: string;
 
   fetchProducts: (teamId: string) => Promise<void>;
-  addProduct: (product: ProductWithCreator) => void;
   setPage: (page: number) => void;
   setStatusFilter: (status: ProductStatus | null) => void;
   setSortOrder: (order: "newest" | "oldest") => void;
@@ -104,14 +103,6 @@ export const useProductStore = create<ProductState>((set, get) => ({
     }
   },
 
-  addProduct: (product) =>
-    set((state) => {
-      if (state.statusFilter && state.statusFilter !== product.status) {
-        return state;
-      }
-      return { products: [product, ...state.products] };
-    }),
-
   setPage: (page) => set({ page }),
   setStatusFilter: (status) => set({ statusFilter: status, page: 1 }),
   setSortOrder: (order) => set({ sortOrder: order, page: 1 }),
@@ -150,7 +141,8 @@ export const useProductStore = create<ProductState>((set, get) => ({
     if (error) throw error;
     if (!data.success) throw new Error(data.error);
 
-    get().addProduct(data.data);
+    set({ page: 1 });
+    get().fetchProducts(teamId);
   },
 
   updateProduct: async (

@@ -41,9 +41,10 @@ Deno.serve(async (req) => {
     }
 
     if (searchQuery) {
-      query = query.or(
-        `title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`,
-      );
+      query = query.textSearch("fts", searchQuery, {
+        type: "websearch",
+        config: "english",
+      });
     }
 
     const { data, error, count } = await query;
