@@ -64,13 +64,17 @@ const TeamInfo = () => {
         <div className="space-y-4">
           <div>
             <span className="text-muted-foreground">Team ID: </span>
-            <span className="font-mono text-sm">{team.id}</span>
+            <span className="font-mono text-sm break-all">{team.id}</span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
             <div>
-              <span className="text-muted-foreground">Invite code: </span>
-              <span className="font-mono font-medium">{team.invite_code}</span>
+              <span className="text-muted-foreground break-all">
+                Invite code:{" "}
+              </span>
+              <span className="font-mono font-medium break-all">
+                {team.invite_code}
+              </span>
             </div>
             <Button
               variant="outline"

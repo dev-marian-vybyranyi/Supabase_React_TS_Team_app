@@ -26,8 +26,8 @@ const ProductFilters = () => {
   }, [debouncedSearch, searchQuery, setSearchQuery]);
 
   return (
-    <div className="flex flex-wrap items-center gap-4 mb-6">
-      <div className="flex items-center gap-2 w-full md:w-auto">
+    <div className="flex flex-col md:flex-row flex-wrap items-stretch md:items-center gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
         <div className="relative w-full md:w-64">
           <input
             type="text"

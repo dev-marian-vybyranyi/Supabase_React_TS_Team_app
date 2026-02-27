@@ -17,8 +17,8 @@ export default function AuthPage() {
   }, [session, navigate, isRecovery]);
 
   return (
-    <div className="p-6 min-h-screen flex items-center flex-col justify-center">
-      <div className="w-full max-w-md p-10 flex flex-col">
+    <div className="p-4 sm:p-6 min-h-screen flex items-center flex-col justify-center">
+      <div className="w-full max-w-md p-6 sm:p-10 flex flex-col">
         <h1 className="text-4xl font-bold mb-8 text-center shrink-0">
           Welcome back
         </h1>

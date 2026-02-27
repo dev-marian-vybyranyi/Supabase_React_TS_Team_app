@@ -83,7 +83,7 @@ const ProductsList = () => {
         onValueChange={handleTabChange}
         className="w-full"
       >
-        <TabsList className="grid w-full max-w-lg grid-cols-4 mb-4">
+        <TabsList className="flex flex-wrap h-auto w-full sm:w-auto mb-4 justify-start sm:justify-center">
           <TabsTrigger value="all">All</TabsTrigger>
           <TabsTrigger value="Draft">Drafts</TabsTrigger>
           <TabsTrigger value="Active">Active</TabsTrigger>

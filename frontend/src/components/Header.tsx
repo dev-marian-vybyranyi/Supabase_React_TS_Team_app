@@ -13,7 +13,7 @@ const Header = () => {
   };
 
   return (
-    <div className="flex items-center justify-between mb-8">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between mb-8">
       <div>
         <h1 className="text-3xl font-bold">My Dashboard</h1>
         <p className="text-muted-foreground">{session?.user?.email}</p>
