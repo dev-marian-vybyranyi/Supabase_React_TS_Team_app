@@ -71,41 +71,37 @@ export const useProductStore = create<ProductState>((set, get) => ({
       get();
     set({ isLoading: true, error: null });
 
-    const from = (page - 1) * pageSize;
-    const to = from + pageSize - 1;
-
-    let query = supabase
-      .from("products")
-      .select("*, profiles!created_by(display_name)", { count: "exact" })
-      .eq("team_id", teamId)
-      .order("created_at", { ascending: sortOrder === "oldest" })
-      .range(from, to);
-
-    if (statusFilter) {
-      query = query.eq("status", statusFilter);
-    }
-
-    if (userFilter) {
-      query = query.eq("created_by", userFilter);
-    }
-
-    if (searchQuery) {
-      query = query.or(
-        `title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`,
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "products-fetch",
+        {
+          body: {
+            teamId,
+            page,
+            pageSize,
+            statusFilter,
+            sortOrder,
+            userFilter,
+            searchQuery,
+          },
+        },
       );
-    }
 
-    const { data, error, count } = await query;
+      if (error) throw error;
+      if (!data.success) throw new Error(data.error);
 
-    if (error) {
-      set({ error: error.message, isLoading: false });
-      return;
+      set({
+        products: data.data || [],
+        totalCount: data.count ?? 0,
+        isLoading: false,
+      });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        set({ error: error.message, isLoading: false });
+      } else {
+        set({ error: String(error), isLoading: false });
+      }
     }
-    set({
-      products: data || [],
-      totalCount: count ?? 0,
-      isLoading: false,
-    });
   },
 
   addProduct: (product) =>
@@ -122,12 +118,12 @@ export const useProductStore = create<ProductState>((set, get) => ({
   setUserFilter: (userId) => set({ userFilter: userId, page: 1 }),
   setSearchQuery: (query) => set({ searchQuery: query, page: 1 }),
 
-  createProduct: async ({ title, description, teamId, userId }, imageFile) => {
+  createProduct: async ({ title, description, teamId }, imageFile) => {
     let imageUrl: string | null = null;
 
     if (imageFile) {
       const fileExt = imageFile.name.split(".").pop();
-      const filePath = `${teamId}/${Math.random()}.${fileExt}`;
+      const filePath = `${teamId}/${crypto.randomUUID()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from("product-images")
@@ -142,21 +138,19 @@ export const useProductStore = create<ProductState>((set, get) => ({
       imageUrl = publicUrlData.publicUrl;
     }
 
-    const { data: newProduct, error: dbError } = await supabase
-      .from("products")
-      .insert({
+    const { data, error } = await supabase.functions.invoke("products-create", {
+      body: {
         title,
         description,
-        image_url: imageUrl,
-        team_id: teamId,
-        created_by: userId,
-      })
-      .select("*, profiles!created_by(display_name)")
-      .single();
+        teamId,
+        imageUrl,
+      },
+    });
 
-    if (dbError) throw dbError;
+    if (error) throw error;
+    if (!data.success) throw new Error(data.error);
 
-    get().addProduct(newProduct);
+    get().addProduct(data.data);
   },
 
   updateProduct: async (
@@ -185,7 +179,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
 
     if (imageFile && teamId) {
       const fileExt = imageFile.name.split(".").pop();
-      const filePath = `${teamId}/${Math.random()}.${fileExt}`;
+      const filePath = `${teamId}/${crypto.randomUUID()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from("product-images")
@@ -202,38 +196,44 @@ export const useProductStore = create<ProductState>((set, get) => ({
       imageUrl = null;
     }
 
-    const updateData: Record<string, unknown> = {
-      title: data.title,
-      description: data.description,
-    };
-    if (imageUrl !== undefined) updateData.image_url = imageUrl;
-
-    const { data: updated, error } = await supabase
-      .from("products")
-      .update(updateData)
-      .eq("id", productId)
-      .select("*, profiles!created_by(display_name)")
-      .single();
+    const { data: updatedResponse, error } = await supabase.functions.invoke(
+      "products-update",
+      {
+        body: {
+          productId,
+          title: data.title,
+          description: data.description,
+          imageUrl,
+          removeImage,
+        },
+      },
+    );
 
     if (error) throw error;
+    if (!updatedResponse.success) throw new Error(updatedResponse.error);
 
     set((state) => ({
-      products: state.products.map((p) => (p.id === productId ? updated : p)),
+      products: state.products.map((p) =>
+        p.id === productId ? updatedResponse.data : p,
+      ),
     }));
   },
 
   updateProductStatus: async (productId, newStatus) => {
-    const now = new Date().toISOString();
-
-    const { error } = await supabase
-      .from("products")
-      .update({
-        status: newStatus,
-        updated_at: now,
-      })
-      .eq("id", productId);
+    const { data, error } = await supabase.functions.invoke(
+      "products-update-status",
+      {
+        body: {
+          productId,
+          status: newStatus,
+        },
+      },
+    );
 
     if (error) throw error;
+    if (!data.success) throw new Error(data.error);
+
+    const updated = data.data;
 
     set((state) => {
       if (state.statusFilter && state.statusFilter !== newStatus) {
@@ -242,9 +242,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
         };
       }
       return {
-        products: state.products.map((p) =>
-          p.id === productId ? { ...p, status: newStatus, updated_at: now } : p,
-        ),
+        products: state.products.map((p) => (p.id === productId ? updated : p)),
       };
     });
   },
