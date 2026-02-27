@@ -10,7 +10,7 @@ interface AuthState {
   isRecovery: boolean;
 
   initialize: () => () => void;
-  checkUserTeam: (userId: string) => Promise<void>;
+  checkUserTeam: () => Promise<void>;
   setTeam: (teamId: string) => void;
   signOut: () => Promise<void>;
 }
@@ -26,7 +26,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         set({ session });
-        get().checkUserTeam(session.user.id);
+        get().checkUserTeam();
       } else {
         set({ loading: false });
       }
@@ -44,7 +44,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
 
       if (event === "SIGNED_IN" && session) {
-        await get().checkUserTeam(session.user.id);
+        await get().checkUserTeam();
       } else if (event === "SIGNED_OUT") {
         set({ hasTeam: null, teamId: "", loading: false });
       }
@@ -53,18 +53,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     return () => subscription.unsubscribe();
   },
 
-  checkUserTeam: async (userId: string) => {
+  checkUserTeam: async () => {
     try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("team_id")
-        .eq("id", userId)
-        .maybeSingle();
+      const { data, error } = await supabase.functions.invoke("auth-get-team");
 
       if (error) throw error;
+      if (!data.success) throw new Error(data.error);
 
-      if (data?.team_id) {
-        set({ teamId: data.team_id, hasTeam: true });
+      if (data.teamId) {
+        set({ teamId: data.teamId, hasTeam: true });
       } else {
         set({ hasTeam: false, teamId: "" });
       }

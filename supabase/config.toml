@@ -417,6 +417,9 @@ entrypoint = "./functions/onboarding/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # static_files = [ "./functions/onboarding/*.html" ]
 
+[functions.auth-get-team]
+verify_jwt = false
+
 [functions.team-fetch]
 verify_jwt = false
 
