@@ -1,6 +1,5 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { supabase } from "../supabaseClient";
 import type {
   OnboardingFormValues,
   OnboardingMode,
@@ -17,7 +16,6 @@ import { useAuthStore } from "../store/authStore";
 
 export default function OnboardingPage() {
   const [mode, setMode] = useState<OnboardingMode>("create");
-  const setTeam = useAuthStore((state) => state.setTeam);
 
   const initialValues: OnboardingFormValues = {
     displayName: "",
@@ -41,22 +39,13 @@ export default function OnboardingPage() {
               display_name: values.displayName,
             };
 
-      const { data, error: funcError } = await supabase.functions.invoke(
-        "onboarding",
-        {
-          body: { action: mode, payload },
-        },
-      );
-
-      if (funcError) throw funcError;
-      if (data?.error) throw new Error(data.error);
+      await useAuthStore.getState().switchTeam(mode, payload);
 
       toast.success(
         mode === "create"
           ? "Team created successfully!"
           : "Joined team successfully!",
       );
-      setTeam(data.team.id);
     } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message);

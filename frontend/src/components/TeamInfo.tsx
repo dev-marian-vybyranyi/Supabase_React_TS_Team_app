@@ -1,11 +1,14 @@
 import { Check, ChevronDown, ChevronUp, Copy } from "lucide-react";
 import { useEffect, useState } from "react";
+
 import { useAuthStore } from "../store/authStore";
 import { useTeamStore } from "../store/teamStore";
 import { usePresenceStore } from "../store/presenceStore";
+
 import Loader from "./Loader";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
+import { SwitchTeamDialog } from "./SwitchTeamDialog";
 
 const TeamInfo = () => {
   const { teamId, session } = useAuthStore();
@@ -59,7 +62,11 @@ const TeamInfo = () => {
   return (
     <Card className="mb-8">
       <CardContent>
-        <h2 className="text-2xl font-bold mb-4">{team.name}</h2>
+        <div className="flex justify-between items-start mb-4">
+          <h2 className="text-2xl font-bold">{team.name}</h2>
+
+          <SwitchTeamDialog />
+        </div>
 
         <div className="space-y-4">
           <div>
@@ -67,7 +74,7 @@ const TeamInfo = () => {
             <span className="font-mono text-sm break-all">{team.id}</span>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full">
             <div>
               <span className="text-muted-foreground break-all">
                 Invite code:{" "}
@@ -76,19 +83,22 @@ const TeamInfo = () => {
                 {team.invite_code}
               </span>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleCopyCode}
-              title="Copy invite code"
-            >
-              {copied ? (
-                <Check className="w-4 h-4 mr-2" />
-              ) : (
-                <Copy className="w-4 h-4 mr-2" />
-              )}
-              {copied ? "Copied" : "Copy"}
-            </Button>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopyCode}
+                title="Copy invite code"
+                className="flex-1 sm:flex-none"
+              >
+                {copied ? (
+                  <Check className="w-4 h-4 mr-2" />
+                ) : (
+                  <Copy className="w-4 h-4 mr-2" />
+                )}
+                {copied ? "Copied" : "Copy"}
+              </Button>
+            </div>
           </div>
 
           <div className="pt-4 border-t">

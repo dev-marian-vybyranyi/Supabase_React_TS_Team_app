@@ -12,6 +12,10 @@ interface AuthState {
   initialize: () => () => void;
   checkUserTeam: () => Promise<void>;
   setTeam: (teamId: string) => void;
+  switchTeam: (
+    mode: "create" | "join",
+    payload: { name?: string; invite_code?: string; display_name: string },
+  ) => Promise<{ teamId: string }>;
   signOut: () => Promise<void>;
 }
 
@@ -75,6 +79,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   setTeam: (teamId: string) => {
     set({ teamId, hasTeam: true, loading: false });
+  },
+
+  switchTeam: async (mode, payload) => {
+    const { data, error: funcError } = await supabase.functions.invoke(
+      "onboarding",
+      {
+        body: { action: mode, payload },
+      },
+    );
+
+    if (funcError) throw funcError;
+    if (data?.error) throw new Error(data.error);
+
+    set({ teamId: data.team.id, hasTeam: true });
+    return { teamId: data.team.id };
   },
 
   signOut: async () => {
