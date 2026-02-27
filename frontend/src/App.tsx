@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Loader from "./components/Loader";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AuthPage from "./pages/AuthPage";
@@ -8,7 +8,7 @@ import OnboardingPage from "./pages/OnboardingPage";
 import { useAuthStore } from "./store/authStore";
 
 export default function App() {
-  const { hasTeam, loading, initialize } = useAuthStore();
+  const { hasTeam, loading, initialize, isRecovery } = useAuthStore();
 
   useEffect(() => {
     const unsubscribe = initialize();
@@ -25,15 +25,19 @@ export default function App() {
         <Route
           path="/"
           element={
-            <ProtectedRoute>
-              {hasTeam === null ? (
-                <Loader fullScreen text="Checking team data..." />
-              ) : hasTeam === false ? (
-                <OnboardingPage />
-              ) : (
-                <Dashboard />
-              )}
-            </ProtectedRoute>
+            isRecovery ? (
+              <Navigate to="/auth" replace />
+            ) : (
+              <ProtectedRoute>
+                {hasTeam === null ? (
+                  <Loader fullScreen text="Checking team data..." />
+                ) : hasTeam === false ? (
+                  <OnboardingPage />
+                ) : (
+                  <Dashboard />
+                )}
+              </ProtectedRoute>
+            )
           }
         />
       </Routes>

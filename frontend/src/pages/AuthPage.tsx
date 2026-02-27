@@ -7,13 +7,14 @@ import { supabase } from "../supabaseClient";
 
 export default function AuthPage() {
   const session = useAuthStore((state) => state.session);
+  const isRecovery = useAuthStore((state) => state.isRecovery);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (session) {
+    if (session && !isRecovery) {
       navigate("/");
     }
-  }, [session, navigate]);
+  }, [session, navigate, isRecovery]);
 
   return (
     <div className="p-6 min-h-screen flex items-center flex-col justify-center">
@@ -25,6 +26,7 @@ export default function AuthPage() {
           supabaseClient={supabase}
           appearance={{ theme: ThemeSupa }}
           providers={["google"]}
+          view={isRecovery ? "update_password" : "sign_in"}
         />
       </div>
     </div>

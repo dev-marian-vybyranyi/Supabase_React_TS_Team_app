@@ -7,6 +7,7 @@ interface AuthState {
   hasTeam: boolean | null;
   teamId: string;
   loading: boolean;
+  isRecovery: boolean;
 
   initialize: () => () => void;
   checkUserTeam: (userId: string) => Promise<void>;
@@ -19,6 +20,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   hasTeam: null,
   teamId: "",
   loading: true,
+  isRecovery: false,
 
   initialize: () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -34,6 +36,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       set({ session });
+
+      if (event === "PASSWORD_RECOVERY") {
+        set({ isRecovery: true });
+      } else if (event === "USER_UPDATED") {
+        set({ isRecovery: false });
+      }
 
       if (event === "SIGNED_IN" && session) {
         await get().checkUserTeam(session.user.id);
