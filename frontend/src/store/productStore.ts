@@ -109,7 +109,12 @@ export const useProductStore = create<ProductState>((set, get) => ({
   },
 
   addProduct: (product) =>
-    set((state) => ({ products: [product, ...state.products] })),
+    set((state) => {
+      if (state.statusFilter && state.statusFilter !== product.status) {
+        return state;
+      }
+      return { products: [product, ...state.products] };
+    }),
 
   setPage: (page) => set({ page }),
   setStatusFilter: (status) => set({ statusFilter: status, page: 1 }),
@@ -225,10 +230,17 @@ export const useProductStore = create<ProductState>((set, get) => ({
 
     if (error) throw error;
 
-    set((state) => ({
-      products: state.products.map((p) =>
-        p.id === productId ? { ...p, status: newStatus } : p,
-      ),
-    }));
+    set((state) => {
+      if (state.statusFilter && state.statusFilter !== newStatus) {
+        return {
+          products: state.products.filter((p) => p.id !== productId),
+        };
+      }
+      return {
+        products: state.products.map((p) =>
+          p.id === productId ? { ...p, status: newStatus } : p,
+        ),
+      };
+    });
   },
 }));
