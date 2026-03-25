@@ -1,12 +1,7 @@
-import { SupabaseClient, User } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { User } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { getSupabaseClient } from "./supabase.ts";
 
-interface AuthContext {
-  supabase: SupabaseClient;
-  user: User;
-}
-
-export const requireAuth = async (req: Request): Promise<AuthContext> => {
+export const requireAuth = async (req: Request): Promise<User> => {
   const authHeader = req.headers.get("Authorization");
 
   if (!authHeader) {
@@ -22,5 +17,5 @@ export const requireAuth = async (req: Request): Promise<AuthContext> => {
 
   if (userError || !user) throw new Error("Unauthorized");
 
-  return { supabase, user };
+  return user;
 };

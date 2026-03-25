@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { corsHeaders } from "../_shared/cors.ts";
-import { requireAuth } from "../_shared/auth.ts";
+import { getAppContext } from "../_shared/context.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -8,7 +8,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { supabase, user } = await requireAuth(req);
+    const { supabase, user } = await getAppContext(req);
 
     const payload = await req.json();
     const { productId, status } = payload;
