@@ -23,11 +23,9 @@ export const useTeamStore = create<TeamState>((set) => ({
 
     try {
       const { data, error: invokeError } = await supabase.functions.invoke(
-        "team-fetch",
+        `teams?teamId=${teamId}`,
         {
-          body: {
-            teamId,
-          },
+          method: "GET",
         },
       );
 

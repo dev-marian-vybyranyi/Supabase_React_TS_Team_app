@@ -71,18 +71,20 @@ export const useProductStore = create<ProductState>((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
+      const searchParams = new URLSearchParams({
+        teamId,
+        page: page.toString(),
+        pageSize: pageSize.toString(),
+        sortOrder,
+      });
+      if (statusFilter) searchParams.append("statusFilter", statusFilter);
+      if (userFilter) searchParams.append("userFilter", userFilter);
+      if (searchQuery) searchParams.append("searchQuery", searchQuery);
+
       const { data, error } = await supabase.functions.invoke(
-        "products-fetch",
+        `products?${searchParams.toString()}`,
         {
-          body: {
-            teamId,
-            page,
-            pageSize,
-            statusFilter,
-            sortOrder,
-            userFilter,
-            searchQuery,
-          },
+          method: "GET",
         },
       );
 
@@ -129,7 +131,8 @@ export const useProductStore = create<ProductState>((set, get) => ({
       imageUrl = publicUrlData.publicUrl;
     }
 
-    const { data, error } = await supabase.functions.invoke("products-create", {
+    const { data, error } = await supabase.functions.invoke("products", {
+      method: "POST",
       body: {
         title,
         description,
@@ -189,8 +192,9 @@ export const useProductStore = create<ProductState>((set, get) => ({
     }
 
     const { data: updatedResponse, error } = await supabase.functions.invoke(
-      "products-update",
+      "products",
       {
+        method: "PATCH",
         body: {
           productId,
           title: data.title,
@@ -213,8 +217,9 @@ export const useProductStore = create<ProductState>((set, get) => ({
 
   updateProductStatus: async (productId, newStatus) => {
     const { data, error } = await supabase.functions.invoke(
-      "products-update-status",
+      "products",
       {
+        method: "PATCH",
         body: {
           productId,
           status: newStatus,

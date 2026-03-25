@@ -59,7 +59,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   checkUserTeam: async () => {
     try {
-      const { data, error } = await supabase.functions.invoke("auth-get-team");
+      const { data, error } = await supabase.functions.invoke("teams", {
+        method: "GET",
+      });
 
       if (error) throw error;
       if (!data.success) throw new Error(data.error);
@@ -81,10 +83,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ teamId, hasTeam: true, loading: false });
   },
 
-  switchTeam: async (mode, payload) => {
+  switchTeam: async (_mode, payload) => {
     const { data, error: funcError } = await supabase.functions.invoke(
-      `teams-${mode}`,
+      "teams",
       {
+        method: "POST",
         body: payload,
       },
     );
