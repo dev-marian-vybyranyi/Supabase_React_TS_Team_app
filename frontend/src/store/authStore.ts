@@ -83,9 +83,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   switchTeam: async (mode, payload) => {
     const { data, error: funcError } = await supabase.functions.invoke(
-      "onboarding",
+      `teams-${mode}`,
       {
-        body: { action: mode, payload },
+        body: payload,
       },
     );
 
