@@ -1,13 +1,12 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { corsHeaders } from "../_shared/cors.ts";
+import { corsHeaders, handleCorsAndMethod } from "../_shared/cors.ts";
 import { getSupabaseAdmin } from "../_shared/supabase.ts";
 
 const supabase = getSupabaseAdmin();
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+  const earlyResponse = handleCorsAndMethod(req);
+  if (earlyResponse) return earlyResponse;
 
   try {
     const authHeader = req.headers.get("Authorization");

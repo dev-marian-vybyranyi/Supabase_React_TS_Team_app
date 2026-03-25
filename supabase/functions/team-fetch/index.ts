@@ -1,11 +1,10 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { corsHeaders } from "../_shared/cors.ts";
+import { corsHeaders, handleCorsAndMethod } from "../_shared/cors.ts";
 import { requireAuth } from "../_shared/auth.ts";
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+  const earlyResponse = handleCorsAndMethod(req);
+  if (earlyResponse) return earlyResponse;
 
   try {
     const { supabase, user } = await requireAuth(req);
