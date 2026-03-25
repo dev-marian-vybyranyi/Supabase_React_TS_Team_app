@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { teamFetchSchema } from "./schema.ts";
 import { corsHeaders, handleCorsAndMethod } from "../_shared/cors.ts";
 import { requireAuth } from "../_shared/auth.ts";
 
@@ -9,12 +10,7 @@ Deno.serve(async (req) => {
   try {
     const { supabase, user } = await requireAuth(req);
 
-    const payload = await req.json();
-    const { teamId } = payload;
-
-    if (!teamId) {
-      throw new Error("Missing teamId");
-    }
+    const { teamId } = teamFetchSchema.parse(await req.json());
 
     const { data: teamData, error: teamError } = await supabase
       .from("teams")

@@ -1,4 +1,5 @@
 import "@supabase/functions-js/edge-runtime.d.ts";
+import { teamManagementSchema } from "./schema.ts";
 import { corsHeaders, handleCorsAndMethod } from "../_shared/cors.ts";
 
 Deno.serve(async (req) => {
@@ -6,7 +7,7 @@ Deno.serve(async (req) => {
   if (earlyResponse) return earlyResponse;
 
   try {
-    const { name } = await req.json();
+    const { name } = teamManagementSchema.parse(await req.json());
     const data = {
       message: `Hello ${name}!`,
     };

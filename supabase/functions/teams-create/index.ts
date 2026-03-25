@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { teamsCreateSchema } from "./schema.ts";
 import { corsHeaders, handleCorsAndMethod } from "../_shared/cors.ts";
 import { getSupabaseAdmin } from "../_shared/supabase.ts";
 
@@ -20,7 +21,7 @@ Deno.serve(async (req) => {
 
     if (userError || !user) throw new Error("Unauthorized");
 
-    const payload = await req.json();
+    const payload = teamsCreateSchema.parse(await req.json());
 
     const inviteCode = Math.random()
       .toString(36)

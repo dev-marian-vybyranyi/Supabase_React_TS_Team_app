@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { productsCreateSchema } from "./schema.ts";
 import { corsHeaders, handleCorsAndMethod } from "../_shared/cors.ts";
 import { getAppContext } from "../_shared/context.ts";
 
@@ -9,7 +10,7 @@ Deno.serve(async (req) => {
   try {
     const { supabase, user } = await getAppContext(req);
 
-    const payload = await req.json();
+    const payload = productsCreateSchema.parse(await req.json());
     const { title, description, teamId, imageUrl } = payload;
 
     const { data: newProduct, error } = await supabase
